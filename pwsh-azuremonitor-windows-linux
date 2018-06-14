@@ -1,0 +1,19 @@
+#!/usr/bin/pwsh
+Param(
+  [string]$subscriptionid,
+  [string]$resourcegroup,
+  [string]$resourceprovider,
+  [string]$resourcename,
+  [string]$metricname,
+  [string]$datametric,
+  [string]$contextpath
+)
+Import-AzureRmContext -Path $contextpath |out-null
+$timegrain = '00:01:00'
+$StartTime = (get-date).AddMinutes(-1)
+$EndTime = (get-date)
+$result = Get-AzureRmMetric -ResourceId /subscriptions/$subscriptionid/resourceGroups/$resourcegroup/providers/$resourceprovider/$resourcename  -TimeGrain $timegrain -MetricName $metricname -StartTime $StartTime -EndTime $EndTime -WarningAction silentlyContinue
+$result = $result.Data
+$result = $result.$datametric
+$result = $result -replace ',','.'
+echo $result
